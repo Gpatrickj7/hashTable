@@ -2,18 +2,81 @@
 //
 
 #include <iostream>
+#include <climits>
+#include <string>
+#include <time.h>
+#include <algorithm>
+#include <vector>
+
+
+using namespace std;
+
+//global defintions
+
+
+const unsigned int CAPACITY = 5000;
 
 
 
+//structure for holding course info
+struct Course {
+
+    string courseNumber;   //the unique identifier for courses
+    string courseName;
+    string coursePrereq;   //prereqs also have an identifier and are separate courses within the file 
+
+};
 
 
+class HashTable {
 
+private:
 
+    struct Node {
 
+        Course course;
+        unsigned int key;
+        Node *next;
 
+        //default constructor
+        Node() {
 
+            key = UINT_MAX;
+            next = nullptr;
+        }
 
+        //initialize with a course
+        Node(Course aCourse) : Node() {
 
+            course = aCourse;
+        }
+
+        //initialize with a course and key
+        Node(Course aCourse, unsigned int aKey) : Node(aCourse) {
+
+            key = aKey;
+
+        }
+    };
+    
+    //vector to store nodes
+    vector<Node> nodes;
+
+    unsigned int tableSize = CAPACITY;
+
+    unsigned int hash(int key);
+
+public:
+
+    HashTable();
+    HashTable(unsigned int size);
+    virtual ~HashTable();
+    void Insert(Course course);
+    void PrintAll();
+    void Remove(string courseNumber);
+    Course Search(string courseNumber);
+    size_t Size();
+};
 
 
 

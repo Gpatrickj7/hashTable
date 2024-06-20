@@ -127,16 +127,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\CSVparser.cpp" />
-    <ClCompile Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\HashTable.cpp" />
     <ClCompile Include="HashTable.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\CSVparser.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\CS 300 eBid_Monthly_Sales.csv" />
-    <None Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\CS 300 eBid_Monthly_Sales_Dec_2016.csv" />
+    <None Include="CS 300 ABCU_Advising_Program_Input.csv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
