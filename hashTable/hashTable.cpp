@@ -51,6 +51,7 @@ private:
             course = aCourse;
         }
 
+
         //initialize with a course and key
         Node(Course aCourse, unsigned int aKey) : Node(aCourse) {
 
@@ -79,8 +80,30 @@ public:
 };
 
 
+HashTable::HashTable() {
+
+    //initialize the structs for holding courses
+    nodes.resize(tableSize);
+}
+
+HashTable::HashTable(unsigned int size) {
+    // invoke local tableSize to size with this->
+
+    this->tableSize = size;
 
 
+    // resize nodes size
+    nodes.resize(size);
+
+}
+
+HashTable::~HashTable() {
+
+    //Implements logic to free storage when class is destroyed
+    nodes.erase(nodes.begin());
+
+    // erase nodes beginning
+}
 
 
 
