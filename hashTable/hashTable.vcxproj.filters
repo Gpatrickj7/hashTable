@@ -15,8 +15,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="hashTable.cpp">
+    <ClCompile Include="HashTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\CSVparser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\HashTable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\CSVparser.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\CS 300 eBid_Monthly_Sales_Dec_2016.csv">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\CS 300 eBid_Monthly_Sales.csv">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

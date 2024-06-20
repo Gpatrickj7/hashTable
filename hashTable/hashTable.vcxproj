@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{07afb595-7f27-4d60-b668-d8849f2fc8e7}</ProjectGuid>
-    <RootNamespace>hashTable</RootNamespace>
+    <ProjectGuid>{cc0427c7-0901-41b9-84a3-730a2dfa3cbd}</ProjectGuid>
+    <RootNamespace>HashTable</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -127,7 +127,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="hashTable.cpp" />
+    <ClCompile Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\CSVparser.cpp" />
+    <ClCompile Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\HashTable.cpp" />
+    <ClCompile Include="HashTable.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\CSVparser.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\CS 300 eBid_Monthly_Sales.csv" />
+    <None Include="..\..\..\OneDrive\CS 300 Hash Table Assignment Student Files\CS 300 eBid_Monthly_Sales_Dec_2016.csv" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
