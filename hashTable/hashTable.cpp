@@ -146,6 +146,33 @@ void HashTable::Insert(Course course) {
 
     }
 }
+//lists all courses. this is where any tweaks will likely be made for output in a certain order. maybe a loop inserted to check a course, output it or not, hold it or something... not sure (3:35 pm 6/21/24)
+void HashTable::PrintAll() {
+    
+    //for loop to iterate through the nodes from the beginning to the end. 
+    for (auto it = nodes.begin(); it != nodes.end(); ++it) {
+
+        //if key is not equal to UNIT_MAX
+        if (it->key != UINT_MAX) {
+
+            //output course info... number, name, prereqs, etc.
+            cout << "Key: " << it->key << ": " << it->course.courseNumber << " | " << it->course.courseName << " | " << it->course.coursePrereq << endl;
+
+            //next node is equal to next iteration
+            Node* node = it->next;
+
+            //while node is not null ptr
+            while (node != nullptr) {
+
+                //output course info 
+                cout << "Key: " << it->key << ": " << it->course.courseNumber << " | " << it->course.courseName << " | " << it->course.coursePrereq << endl;
+
+                //node equal to next node
+                node = node->next;
+            }
+        }
+    }
+}
 
 
 
