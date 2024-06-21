@@ -175,6 +175,75 @@ void HashTable::PrintAll() {
 }
 
 
+//remove operation for the hash table 
+void HashTable::Remove(string courseNumber) {
+
+    //set key - to hash atoi courseNumber c_string. learned atoi turns strings into integers. pretty cool stuff
+    unsigned int key = hash(atoi(courseNumber.c_str()));
+
+    Node* node = &(nodes.at(key));   //bit wise AND "&"
+
+    //if node is not equal to UINT_MAX
+    if (node->key != UINT_MAX) {
+
+        //if the nodes courseNumber matches the courseNumber passed to the method, the .compare returns a 0. basic logic that is easy to follow. Have used .compare elsewhere in my projects
+        if (node->course.courseNumber.compare(courseNumber) == 0) {
+
+            cout << "remove top nodes for " << courseNumber << endl;
+
+            //if next node is nullptr ("empty")
+            if (node->next == nullptr) {
+
+                node->key = UINT_MAX; //if the ptr is null, resets the key to default
+
+                return;
+            }
+            else {
+                //sets the keys nodes to the next one
+                nodes.at(key) = *(node->next);
+                return;
+            }
+
+        } //part of the operation that actually removes the specified element
+        else {
+            //new node for current
+            Node* cur = node->next;         //c++ pointers are nice and easy compared to java. javas points sit inbetween the next and previous and forces some weird logic in methods like this. I think it is better due to c++ being a lower level
+            
+            //new node for previous
+            Node* pre = node;
+
+            //while current is not nullptr
+            while (cur != nullptr) {
+
+                //comparision of iterators nodes courseNumber to the one passed
+                if (cur->course.courseNumber.compare(courseNumber)) {
+
+                    //previous nodes next set to current nodes next
+                    pre->next = cur->next;
+
+                    //REMOVE
+                    delete cur;
+
+                    cur = nullptr;
+
+                    return;
+                }
+
+                pre = cur;
+
+                cur = cur->next;
+
+
+                
+            }
+
+        }
+
+    }
+
+}
+
+
 
 
 
