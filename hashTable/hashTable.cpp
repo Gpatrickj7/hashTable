@@ -242,6 +242,61 @@ void HashTable::Remove(string courseNumber) {
     }
 
 }
+//search operation
+Course HashTable::Search(string courseNumber) {
+
+    //course object
+    Course course;
+
+    //creates a key for the given courseNumber
+    unsigned int key = hash(atoi(courseNumber.c_str()));
+
+    Node* node = &(nodes.at(key));
+
+    //if entry is found for the key
+    if (node != nullptr && node->key != UINT_MAX && node->course.courseNumber.compare(courseNumber) == 0) {
+
+        //return node course
+        return node->course;
+
+    }
+
+    //if no entry is found for the key
+    if (node == nullptr || node->key == UINT_MAX) {
+
+        //return the course
+        return course;
+    }
+
+    //while node is not nullptr
+    while (node != nullptr) {
+
+        //if current nodes courseNumber matches the passed courseNumber, return it
+        if (node->key != UINT_MAX && node->course.courseNumber.compare(courseNumber)) {
+
+            //return it
+            return node->course;
+
+        }
+        //node equals next node
+        node = node->next;
+
+    }
+
+    return course;
+    
+}
+
+
+
+//display course information
+void displayCourse(Course course) {
+
+    //outputs course info
+    cout << course.courseNumber << " | " << course.courseName << " | " << course.coursePrereq << endl;
+
+    return;
+}
 
 
 
