@@ -105,6 +105,48 @@ HashTable::~HashTable() {
     // erase nodes beginning
 }
 
+//hash value for a key. unsigned to disallow negative indices
+//parameter is a key to be hashed
+unsigned int HashTable::hash(int key) {
+
+    //returns the caclulated hash value
+    return key % tableSize;
+}
+
+
+//insert operation to insert a course 
+void HashTable::Insert(Course course) {
+
+    //create the key for a given course (by its unique identifier)
+    unsigned key = hash(atoi(course.courseNumber.c_str()));
+
+    //retrieves the node using the key we just created
+    Node* oldNode = &(nodes.at(key));
+
+    //if no entry is found for the key
+    if (oldNode == nullptr) {
+
+        //assign this node to the position of the key
+        Node* newNode = new Node(course, key);
+        nodes.insert(nodes.begin() + key, (*newNode));
+
+       
+    } //else if node is not used
+    else {
+        if (oldNode->key == UINT_MAX) {
+            
+            //assign the oldNode to UINT_MAX, set to key, set oldNode to course, then set oldNode next to null ptr
+            oldNode->key = key;
+
+            oldNode->course = course;
+
+            oldNode->next = nullptr;
+            
+        }
+
+    }
+}
+
 
 
 
