@@ -294,6 +294,8 @@ Course HashTable::Search(string courseNumber) {
 
 
 
+
+
 //load the courses into the container which is our hashtable
 void loadCourses(string csvPath, HashTable* hashTable) {
     //simplistic parsing method i researched with no delimiters as of 6/21/2024 at 7:16
@@ -378,6 +380,8 @@ void loadCourses(string csvPath, HashTable* hashTable) {
 //display course information
 void displayCourse(Course course) {
 
+    
+
     //outputs course info
     cout << course.courseNumber << " | " << course.courseName << " | " << course.coursePrereq << endl;
 
@@ -395,11 +399,20 @@ int main()
 
     HashTable courseTable;
 
-    string csvPath = "ABCU_Advising_Program_Input.csv";
+    //ignore this... this serves a reminder to me to include two backslashes, NOT ONE, when hard coding a path. 
 
+   //string csvPath = "C:\\*****\\*********\\*******\\******\\********\\********\\CS 300 ABCU_Advising_Program_Input.csv";
+
+
+    //this is where you should be able to alter the path to your pc's path when checking if this program works. you may need to hard code it before it works like the example above. 
+    string csvPath = "CS 300 ABCU_Advising_Program_Input.csv";
 
 
     loadCourses(csvPath, &courseTable);
+
+    displayCourse(courseTable.Search("CSCI300"));
+
+
 
 
 
