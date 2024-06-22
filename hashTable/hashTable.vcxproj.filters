@@ -24,4 +24,9 @@
       <Filter>Resource Files</Filter>
     </CopyFileToFolders>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Stuff\Coding shit\crap for projects\CS 300 ABCU_Advising_Program_Input_Copy.csv">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

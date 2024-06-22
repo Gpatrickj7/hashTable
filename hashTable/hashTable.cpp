@@ -299,11 +299,28 @@ void loadCourses(string csvPath, HashTable* hashTable) {
     //simplistic parsing method i researched with no delimiters as of 6/21/2024 at 7:16
 
     //the file which has the csvPath which is defined in main().
-    std::ifstream file(csvPath);
+    std::ifstream file;
+
+    const std::string fileName = csvPath;
+
+    file.open(fileName);
+
+    
 
     //checks for errors regarding opening the file. might encase this operations actually work within a try/catch
     if (!file.is_open()) {
-        cout << "Error: Unable to open file " << csvPath << endl;
+        
+
+        int errorNumber = errno;
+
+        char errorMessage[80];
+
+        strerror_s(errorMessage, sizeof(errorMessage), errorNumber);
+
+        std::cerr << "Error opening file '" << fileName << "': " << errorMessage << std::endl;
+
+        
+
         return;
     }
 
@@ -380,7 +397,13 @@ int main()
 
     string csvPath = "ABCU_Advising_Program_Input.csv";
 
+
+
     loadCourses(csvPath, &courseTable);
+
+
+
+    
 
     
 }
