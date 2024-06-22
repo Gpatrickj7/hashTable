@@ -291,14 +291,6 @@ Course HashTable::Search(string courseNumber) {
 
 
 
-//display course information
-void displayCourse(Course course) {
-
-    //outputs course info
-    cout << course.courseNumber << " | " << course.courseName << " | " << course.coursePrereq << endl;
-
-    return;
-}
 
 
 
@@ -362,13 +354,18 @@ void loadCourses(string csvPath, HashTable* hashTable) {
     file.close();
     cout << "File loading complete." << endl;
 
-
-
-
 }
     
 
 
+//display course information
+void displayCourse(Course course) {
+
+    //outputs course info
+    cout << course.courseNumber << " | " << course.courseName << " | " << course.coursePrereq << endl;
+
+    return;
+}
 
 
 

@@ -130,7 +130,11 @@
     <ClCompile Include="HashTable.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CS 300 ABCU_Advising_Program_Input.csv" />
+    <CopyFileToFolders Include="CS 300 ABCU_Advising_Program_Input.csv">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
