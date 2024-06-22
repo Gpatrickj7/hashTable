@@ -7,6 +7,8 @@
 #include <time.h>
 #include <algorithm>
 #include <vector>
+#include <fstream>
+#include <sstream>
 
 
 using namespace std;
@@ -300,11 +302,90 @@ void displayCourse(Course course) {
 
 
 
+//load the courses into the container which is our hashtable
+void loadCourses(string csvPath, HashTable* hashTable) {
+    //simplistic parsing method i researched with no delimiters as of 6/21/2024 at 7:16
+
+    //the file which has the csvPath which is defined in main().
+    std::ifstream file(csvPath);
+
+    //checks for errors regarding opening the file. might encase this operations actually work within a try/catch
+    if (!file.is_open()) {
+        cout << "Error: Unable to open file " << csvPath << endl;
+        return;
+    }
+
+    //line variable
+    std::string line;
+
+    std::getline(file, line);
+
+
+
+    while (std::getline(file, line)) {
+
+        std::stringstream lineStream(line);
+
+        std::string cell;
+
+        std::vector<std::string> parsedRow;
+
+        while (std::getline(lineStream, cell, ',')) {
+
+            parsedRow.push_back(cell);
+
+        }
+
+        // Ensure we have at least 2 columns (course number and name)
+        if (parsedRow.size() >= 2) {
+            Course course;
+            course.courseNumber = parsedRow[0];
+            course.courseName = parsedRow[1];
+
+            // Check if there's a prerequisite
+            if (parsedRow.size() > 2) {
+                course.coursePrereq = parsedRow[2];
+            }
+            else {
+                course.coursePrereq = "None";
+            }
+
+            // Insert the course into the hash table
+            hashTable->Insert(course);
+
+            cout << "Loaded: " << course.courseNumber << " | " << course.courseName << " | " << course.coursePrereq << endl;
+        }
+        else {
+            cout << "Warning: Skipping invalid line in CSV: " << line << endl;
+        }
+    }
+    file.close();
+    cout << "File loading complete." << endl;
+
+
+
+
+}
+    
+
+
+
+
+
+
 
 
 int main()
 {
     std::cout << "Hello World!\n";
+
+    HashTable courseTable;
+
+    string csvPath = "ABCU_Advising_Program_Input.csv";
+
+    loadCourses(csvPath, &courseTable);
+
+    
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
