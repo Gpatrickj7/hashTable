@@ -425,6 +425,7 @@ int main()
                     cout << "Invalid course number. Please enter a course number between 4 and 10 characters.\n";
                 }
                 else {
+                    transform(courseNumber.begin(), courseNumber.end(), courseNumber.begin(), ::toupper);
                     Course course = courseTable.Search(courseNumber);
                     if (!course.courseNumber.empty()) {
                         displayCourse(course);
