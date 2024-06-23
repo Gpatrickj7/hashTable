@@ -1,6 +1,6 @@
 ﻿  HashTable.cpp
   Generating code
   Previous IPDB not found, fall back to full compilation.
-  All 346 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  All 432 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
   HashTable.vcxproj -> C:\Users\gunna\OneDrive\myGit\hashTable-git\hashTable\x64\Release\HashTable.exe

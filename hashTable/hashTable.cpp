@@ -18,7 +18,7 @@ using namespace std;
 
 //global defintions
 
-
+//cap for hash table. very easy to modify as needed. hashing algo should be robust enough to handle much more data. 
 const unsigned int CAPACITY = 5000;
 
 
@@ -46,7 +46,7 @@ bool caseInsensitiveStringCompare(const string& str1, const string& str2) {
 class HashTable {
 
 private:
-
+    //node structure
     struct Node {
 
         Course course;
@@ -69,7 +69,7 @@ private:
     //parameter is a key to be hashed
     //implementing a newer improved hashing algorithm know as djb2. running into infinite loops for some inputs when searching.
 
-    unsigned int hash(const string& courseNumber) {       //this function was not working at all. it gave every entry "0" as its key. attempting to fix it as of (3:58 6/22/24).
+    unsigned int hash(const string& courseNumber) {       
 
         string upperCourseNumber = courseNumber;
         transform(upperCourseNumber.begin(), upperCourseNumber.end(), upperCourseNumber.begin(), ::toupper);
@@ -107,7 +107,7 @@ public:
     void Insert(Course course) {
 
         //create the key for a given course (by its unique identifier)
-        //unsigned key = hash(atoi(course.courseNumber.c_str()));
+        
         unsigned key = hash(course.courseNumber);
 
         //prints when a course is being inserted for testing purposes
@@ -132,7 +132,7 @@ public:
 
 
 
-    //lists all courses. this is where any tweaks will likely be made for output in a certain order. maybe a loop inserted to check a course, output it or not, hold it or something... not sure (3:35 pm 6/21/24)
+    //lists all courses. 
     void PrintAll() {
 
         //for loop to iterate through the nodes from the beginning to the end. 
@@ -200,7 +200,7 @@ public:
         cout << "Course " << courseNumber << " not found for removal." << endl;
     }
 
-    //the original function is not working as intended. using .compare returns a zero when the strings are equal but it is treating any non zero result as a match... modifying it as of (3:26 6/22/2024).
+    
     // final version as of (5:22 6/22/2024)
     //search operation
     Course Search(string courseNumber) {
@@ -377,7 +377,7 @@ int main()
     int choice = 0;
     bool dataLoaded = false;
 
-    //this is where you should be able to alter the path to your pc's path when checking if this program works. you may need to hard code it before it works like the example above. 
+    //this is where you should be able to alter the path to your pc's path when checking if this program works. you may need to hard code it before it works as intended. 
     string csvPath = "CS 300 ABCU_Advising_Program_Input.csv";
 
     while (choice != 9) {
@@ -388,6 +388,7 @@ int main()
         cout << "9. Exit\n";
         cout << "Enter your choice: ";
 
+        //this fixes many issues with looping caused by inputs.
         if (!(cin >> choice)) {
             cin.clear(); // clear error flags
             cin.ignore(numeric_limits<streamsize>::max(), '\n'); // discard invalid input
@@ -396,8 +397,10 @@ int main()
         }
 
         
-
+        //switch loop for menu navigation, my preferred way to do it. 
         switch (choice) {
+
+        //load courses
         case 1:
             if (!dataLoaded) {
                 loadCourses(csvPath, &courseTable);
@@ -407,6 +410,8 @@ int main()
                 cout << "Data has already been loaded.\n";
             }
             break;
+
+        //print courses
         case 2:
             if (dataLoaded) {
                 printSortedCourseList(courseTable);
@@ -415,6 +420,8 @@ int main()
                 cout << "Please load the data first (Option 1).\n";
             }
             break;
+
+        //search for a course. only accepts valid courseNumbers.
         case 3:
             if (dataLoaded) {
                 string courseNumber;
@@ -425,6 +432,7 @@ int main()
                     cout << "Invalid course number. Please enter a course number between 4 and 10 characters.\n";
                 }
                 else {
+                    //used this line a lot for dealing with case sensitivity for data. 
                     transform(courseNumber.begin(), courseNumber.end(), courseNumber.begin(), ::toupper);
                     Course course = courseTable.Search(courseNumber);
                     if (!course.courseNumber.empty()) {
@@ -439,7 +447,9 @@ int main()
                 cout << "Please load the data first (Option 1).\n";
             }
             break;
+        //close the program
         case 9:
+
             cout << "Thank you for using the program. Goodbye!\n";
             break;
         default:
