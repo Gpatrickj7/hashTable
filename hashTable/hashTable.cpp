@@ -9,6 +9,9 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <string.h>
+#include <cctype>
+#include <limits>
 
 
 using namespace std;
@@ -29,6 +32,16 @@ struct Course {
 
 };
 
+//helper function for comparing strings. tried to use strcasecmp but that is not compatible with windows
+bool caseInsensitiveStringCompare(const string& str1, const string& str2) {
+
+    return str1.size() == str2.size() &&
+
+        equal(str1.begin(), str1.end(), str2.begin(),
+
+            [](char c1, char c2) { return tolower(c1) == tolower(c2); });
+}
+
 
 class HashTable {
 
@@ -38,256 +51,230 @@ private:
 
         Course course;
         unsigned int key;
-        Node *next;
+        Node* next;
 
-        //default constructor
-        Node() {
-
-            key = UINT_MAX;
-            next = nullptr;
-        }
-
-        //initialize with a course
-        Node(Course aCourse) : Node() {
-
-            course = aCourse;
-        }
-
-
-        //initialize with a course and key
-        Node(Course aCourse, unsigned int aKey) : Node(aCourse) {
-
-            key = aKey;
-
-        }
+        Node() : key(UINT_MAX), next(nullptr) {}
+        Node(Course aCourse) : Node() { course = aCourse; }
+        Node(Course aCourse, unsigned int aKey) : Node(aCourse) { key = aKey; }
     };
-    
     //vector to store nodes
     vector<Node> nodes;
+    unsigned int tableSize;
 
-    unsigned int tableSize = CAPACITY;
 
-    unsigned int hash(int key);
+
+
+
+    //hash value for a key. unsigned to disallow negative indices
+    //parameter is a key to be hashed
+    //implementing a newer improved hashing algorithm know as djb2. running into infinite loops for some inputs when searching.
+
+    unsigned int hash(const string& courseNumber) {       //this function was not working at all. it gave every entry "0" as its key. attempting to fix it as of (3:58 6/22/24).
+
+        string upperCourseNumber = courseNumber;
+        transform(upperCourseNumber.begin(), upperCourseNumber.end(), upperCourseNumber.begin(), ::toupper);
+
+        unsigned int hash = 5381; // Different starting value
+        for (char ch : upperCourseNumber) {
+            hash = ((hash << 5) + hash) + ch; // (hash * 33) + ch
+        }
+        //returns the caclulated hash value
+        return hash % tableSize;
+    }
 
 public:
 
-    HashTable();
-    HashTable(unsigned int size);
-    virtual ~HashTable();
-    void Insert(Course course);
-    void PrintAll();
-    void Remove(string courseNumber);
-    Course Search(string courseNumber);
-    size_t Size();
+    HashTable() : tableSize(CAPACITY) {
+        nodes.resize(tableSize);
+    }
+
+    HashTable(unsigned int size) : tableSize(size) {
+        nodes.resize(tableSize);
+    }
+
+    ~HashTable() {
+        nodes.clear();
+    }
+
+    
+
+
+
+
+
+
+    //insert operation to insert a course 
+    void Insert(Course course) {
+
+        //create the key for a given course (by its unique identifier)
+        //unsigned key = hash(atoi(course.courseNumber.c_str()));
+        unsigned key = hash(course.courseNumber);
+
+        //prints when a course is being inserted for testing purposes
+        cout << "Inserting course: " << course.courseNumber << " at key: " << key << endl;
+
+        //retrieves the node using the key we just created
+        Node* newNode = new Node(course, key);
+
+        //if no entry is found for the key
+        if (nodes[key].key == UINT_MAX) {
+            nodes[key] = *newNode;
+        }
+        else {
+            //handle collision by appending to the end of the linked list
+            Node* current = &nodes[key];
+            while (current->next != nullptr) {
+                current = current->next;
+            }
+            current->next = newNode;
+        }
+    }
+
+
+
+    //lists all courses. this is where any tweaks will likely be made for output in a certain order. maybe a loop inserted to check a course, output it or not, hold it or something... not sure (3:35 pm 6/21/24)
+    void PrintAll() {
+
+        //for loop to iterate through the nodes from the beginning to the end. 
+        for (auto it = nodes.begin(); it != nodes.end(); ++it) {
+
+            //if key is not equal to UNIT_MAX
+            if (it->key != UINT_MAX) {
+
+                //output course info... number, name, prereqs, etc.
+                cout << "Key: " << it->key << ": " << it->course.courseNumber << " | " << it->course.courseName << " | " << it->course.coursePrereq << endl;
+
+                //next node is equal to next iteration
+                Node* node = it->next;
+
+                //while node is not null ptr
+                while (node != nullptr) {
+
+                    //output course info 
+                    cout << "Key: " << it->key << ": " << it->course.courseNumber << " | " << it->course.courseName << " | " << it->course.coursePrereq << endl;
+
+                    //node equal to next node
+                    node = node->next;
+                }
+            }
+        }
+    }
+
+
+    //remove operation for the hash table 
+    void Remove(string courseNumber) {
+        //set key - to hash courseNumber
+        unsigned int key = hash(courseNumber);
+
+        cout << "Attempting to remove course: " << courseNumber << " at key: " << key << endl;
+
+        Node* node = &(nodes[key]);   //bit wise AND "&"
+        Node* prev = nullptr;
+
+        //while node is not nullptr
+        while (node != nullptr) {
+            //comparision of node's courseNumber to the one passed
+            if (caseInsensitiveStringCompare(node->course.courseNumber, courseNumber)) {
+                if (prev == nullptr) {
+                    //if it's the first node in the bucket
+                    if (node->next != nullptr) {
+                        nodes[key] = *(node->next);
+                    }
+                    else {
+                        nodes[key] = Node();
+                    }
+                    cout << "Removed top node for " << courseNumber << endl;
+                }
+                else {
+                    //if it's not the first node
+                    prev->next = node->next;
+                    cout << "Removed node in chain for " << courseNumber << endl;
+                }
+                delete node;
+                return;
+            }
+            prev = node;
+            node = node->next;
+        }
+
+        cout << "Course " << courseNumber << " not found for removal." << endl;
+    }
+
+    //the original function is not working as intended. using .compare returns a zero when the strings are equal but it is treating any non zero result as a match... modifying it as of (3:26 6/22/2024).
+    // final version as of (5:22 6/22/2024)
+    //search operation
+    Course Search(string courseNumber) {
+        // Convert input courseNumber to uppercase
+        transform(courseNumber.begin(), courseNumber.end(), courseNumber.begin(), ::toupper);
+
+        //creates a key for the given courseNumber
+        unsigned int key = hash(courseNumber);
+
+        //prints info for testing 
+        cout << "Searching for course: " << courseNumber << " at key: " << key << endl;
+
+        Node* node = &(nodes[key]);
+        int iterations = 0;
+        const int MAX_ITERATIONS = 10; // Small number for testing
+
+        //while node is not nullptr
+        while (node != nullptr && iterations < MAX_ITERATIONS) {
+            //if entry is found for the key
+            if (node->course.courseNumber == courseNumber) {
+                cout << "Course found!" << endl;
+                //return node course
+                return node->course;
+            }
+
+            //node equals next node
+            node = node->next;
+            iterations++;
+        }
+
+        cout << "Course not found or search terminated after " << MAX_ITERATIONS << " iterations." << endl;
+        return Course(); // Return empty course if not found
+    }
+
+
+
+    //prints the courses alphanumerically
+    friend void printSortedCourseList(const HashTable& courseTable) {
+        vector<Course> allCourses;
+
+        // Collect all courses from the hash table
+        for (const auto& node : courseTable.nodes) {
+            if (node.key != UINT_MAX) {
+                allCourses.push_back(node.course);
+                Node* current = node.next;
+                while (current != nullptr) {
+                    allCourses.push_back(current->course);
+                    current = current->next;
+                }
+            }
+        }
+
+        // Sort the courses
+        sort(allCourses.begin(), allCourses.end(),
+            [](const Course& a, const Course& b) {
+                return a.courseNumber < b.courseNumber;
+            });
+
+        // Print the sorted list with prerequisites
+        cout << "Course List (sorted alphanumerically):\n";
+        for (const auto& course : allCourses) {
+            cout << course.courseNumber << ": " << course.courseName;
+            if (!course.coursePrereq.empty() && course.coursePrereq != "None") {
+                cout << " | Prerequisites: " << course.coursePrereq;
+            }
+            else {
+                cout << " | Prerequisites: None";
+            }
+            cout << endl;
+        }
+    }
 };
 
 
-HashTable::HashTable() {
-
-    //initialize the structs for holding courses
-    nodes.resize(tableSize);
-}
-
-HashTable::HashTable(unsigned int size) {
-    // invoke local tableSize to size with this->
-
-    this->tableSize = size;
-
-
-    // resize nodes size
-    nodes.resize(size);
-
-}
-
-HashTable::~HashTable() {
-
-    //Implements logic to free storage when class is destroyed
-    nodes.erase(nodes.begin());
-
-    // erase nodes beginning
-}
-
-//hash value for a key. unsigned to disallow negative indices
-//parameter is a key to be hashed
-unsigned int HashTable::hash(int key) {
-
-    //returns the caclulated hash value
-    return key % tableSize;
-}
-
-
-//insert operation to insert a course 
-void HashTable::Insert(Course course) {
-
-    //create the key for a given course (by its unique identifier)
-    unsigned key = hash(atoi(course.courseNumber.c_str()));
-
-    //retrieves the node using the key we just created
-    Node* oldNode = &(nodes.at(key));
-
-    //if no entry is found for the key
-    if (oldNode == nullptr) {
-
-        //assign this node to the position of the key
-        Node* newNode = new Node(course, key);
-        nodes.insert(nodes.begin() + key, (*newNode));
-
-       
-    } //else if node is not used
-    else {
-        if (oldNode->key == UINT_MAX) {
-            
-            //assign the oldNode to UINT_MAX, set to key, set oldNode to course, then set oldNode next to null ptr
-            oldNode->key = key;
-
-            oldNode->course = course;
-
-            oldNode->next = nullptr;
-            
-        }
-
-    }
-}
-//lists all courses. this is where any tweaks will likely be made for output in a certain order. maybe a loop inserted to check a course, output it or not, hold it or something... not sure (3:35 pm 6/21/24)
-void HashTable::PrintAll() {
-    
-    //for loop to iterate through the nodes from the beginning to the end. 
-    for (auto it = nodes.begin(); it != nodes.end(); ++it) {
-
-        //if key is not equal to UNIT_MAX
-        if (it->key != UINT_MAX) {
-
-            //output course info... number, name, prereqs, etc.
-            cout << "Key: " << it->key << ": " << it->course.courseNumber << " | " << it->course.courseName << " | " << it->course.coursePrereq << endl;
-
-            //next node is equal to next iteration
-            Node* node = it->next;
-
-            //while node is not null ptr
-            while (node != nullptr) {
-
-                //output course info 
-                cout << "Key: " << it->key << ": " << it->course.courseNumber << " | " << it->course.courseName << " | " << it->course.coursePrereq << endl;
-
-                //node equal to next node
-                node = node->next;
-            }
-        }
-    }
-}
-
-
-//remove operation for the hash table 
-void HashTable::Remove(string courseNumber) {
-
-    //set key - to hash atoi courseNumber c_string. learned atoi turns strings into integers. pretty cool stuff
-    unsigned int key = hash(atoi(courseNumber.c_str()));
-
-    Node* node = &(nodes.at(key));   //bit wise AND "&"
-
-    //if node is not equal to UINT_MAX
-    if (node->key != UINT_MAX) {
-
-        //if the nodes courseNumber matches the courseNumber passed to the method, the .compare returns a 0. basic logic that is easy to follow. Have used .compare elsewhere in my projects
-        if (node->course.courseNumber.compare(courseNumber) == 0) {
-
-            cout << "remove top nodes for " << courseNumber << endl;
-
-            //if next node is nullptr ("empty")
-            if (node->next == nullptr) {
-
-                node->key = UINT_MAX; //if the ptr is null, resets the key to default
-
-                return;
-            }
-            else {
-                //sets the keys nodes to the next one
-                nodes.at(key) = *(node->next);
-                return;
-            }
-
-        } //part of the operation that actually removes the specified element
-        else {
-            //new node for current
-            Node* cur = node->next;         //c++ pointers are nice and easy compared to java. javas points sit inbetween the next and previous and forces some weird logic in methods like this. I think it is better due to c++ being a lower level
-            
-            //new node for previous
-            Node* pre = node;
-
-            //while current is not nullptr
-            while (cur != nullptr) {
-
-                //comparision of iterators nodes courseNumber to the one passed
-                if (cur->course.courseNumber.compare(courseNumber)) {
-
-                    //previous nodes next set to current nodes next
-                    pre->next = cur->next;
-
-                    //REMOVE
-                    delete cur;
-
-                    cur = nullptr;
-
-                    return;
-                }
-
-                pre = cur;
-
-                cur = cur->next;
-
-
-                
-            }
-
-        }
-
-    }
-
-}
-//search operation
-Course HashTable::Search(string courseNumber) {
-
-    //course object
-    Course course;
-
-    //creates a key for the given courseNumber
-    unsigned int key = hash(atoi(courseNumber.c_str()));
-
-    Node* node = &(nodes.at(key));
-
-    //if entry is found for the key
-    if (node != nullptr && node->key != UINT_MAX && node->course.courseNumber.compare(courseNumber) == 0) {
-
-        //return node course
-        return node->course;
-
-    }
-
-    //if no entry is found for the key
-    if (node == nullptr || node->key == UINT_MAX) {
-
-        //return the course
-        return course;
-    }
-
-    //while node is not nullptr
-    while (node != nullptr) {
-
-        //if current nodes courseNumber matches the passed courseNumber, return it
-        if (node->key != UINT_MAX && node->course.courseNumber.compare(courseNumber)) {
-
-            //return it
-            return node->course;
-
-        }
-        //node equals next node
-        node = node->next;
-
-    }
-
-    return course;
-    
-}
 
 
 
@@ -307,50 +294,46 @@ void loadCourses(string csvPath, HashTable* hashTable) {
 
     file.open(fileName);
 
-    
-
     //checks for errors regarding opening the file. might encase this operations actually work within a try/catch
     if (!file.is_open()) {
-        
-
         int errorNumber = errno;
-
         char errorMessage[80];
-
         strerror_s(errorMessage, sizeof(errorMessage), errorNumber);
-
         std::cerr << "Error opening file '" << fileName << "': " << errorMessage << std::endl;
+        return;
+    }
 
-        
-
+    // Check if the file is empty
+    if (file.peek() == std::ifstream::traits_type::eof()) {
+        std::cerr << "Error: The file '" << fileName << "' is empty." << std::endl;
+        file.close();
         return;
     }
 
     //line variable
     std::string line;
 
-    std::getline(file, line);
+    // removed this line of code "std::getline(file, line);" //
 
-
+    int lineCount = 0;  // Add a counter for loaded courses
 
     while (std::getline(file, line)) {
-
         std::stringstream lineStream(line);
-
         std::string cell;
-
         std::vector<std::string> parsedRow;
 
         while (std::getline(lineStream, cell, ',')) {
-
             parsedRow.push_back(cell);
-
         }
 
         // Ensure we have at least 2 columns (course number and name)
         if (parsedRow.size() >= 2) {
             Course course;
             course.courseNumber = parsedRow[0];
+
+            //transforms courseNumber to uppercase
+            transform(course.courseNumber.begin(), course.courseNumber.end(), course.courseNumber.begin(), ::toupper);
+
             course.courseName = parsedRow[1];
 
             // Check if there's a prerequisite
@@ -365,26 +348,20 @@ void loadCourses(string csvPath, HashTable* hashTable) {
             hashTable->Insert(course);
 
             cout << "Loaded: " << course.courseNumber << " | " << course.courseName << " | " << course.coursePrereq << endl;
+            lineCount++;  // Increment the counter
         }
         else {
             cout << "Warning: Skipping invalid line in CSV: " << line << endl;
         }
     }
     file.close();
-    cout << "File loading complete." << endl;
-
+    cout << "File loading complete. " << lineCount << " courses loaded." << endl;
 }
-    
-
 
 //display course information
 void displayCourse(Course course) {
-
-    
-
     //outputs course info
     cout << course.courseNumber << " | " << course.courseName << " | " << course.coursePrereq << endl;
-
     return;
 }
 
@@ -395,30 +372,91 @@ void displayCourse(Course course) {
 
 int main()
 {
-    std::cout << "Hello World!\n";
-
+    //variable declaration for main()
     HashTable courseTable;
-
-    //ignore this... this serves a reminder to me to include two backslashes, NOT ONE, when hard coding a path. 
-
-   //string csvPath = "C:\\*****\\*********\\*******\\******\\********\\********\\CS 300 ABCU_Advising_Program_Input.csv";
-
+    int choice = 0;
+    bool dataLoaded = false;
 
     //this is where you should be able to alter the path to your pc's path when checking if this program works. you may need to hard code it before it works like the example above. 
     string csvPath = "CS 300 ABCU_Advising_Program_Input.csv";
 
+    while (choice != 9) {
+        cout << "\nMenu:\n";
+        cout << "1. Load data structure\n";
+        cout << "2. Print course list\n";
+        cout << "3. Print course information\n";
+        cout << "9. Exit\n";
+        cout << "Enter your choice: ";
 
-    loadCourses(csvPath, &courseTable);
+        if (!(cin >> choice)) {
+            cin.clear(); // clear error flags
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // discard invalid input
+            cout << "Invalid input. Please enter a number.\n";   //this error sometimes shows itself while using the search function
+            continue; // restart the loop
+        }
 
-    displayCourse(courseTable.Search("CSCI300"));
+        
+
+        switch (choice) {
+        case 1:
+            if (!dataLoaded) {
+                loadCourses(csvPath, &courseTable);
+                dataLoaded = true;
+            }
+            else {
+                cout << "Data has already been loaded.\n";
+            }
+            break;
+        case 2:
+            if (dataLoaded) {
+                printSortedCourseList(courseTable);
+            }
+            else {
+                cout << "Please load the data first (Option 1).\n";
+            }
+            break;
+        case 3:
+            if (dataLoaded) {
+                string courseNumber;
+                cout << "Enter the course number: ";
+                cin >> courseNumber;
+                // Input validation
+                if (courseNumber.length() > 10 || courseNumber.length() < 4) {
+                    cout << "Invalid course number. Please enter a course number between 4 and 10 characters.\n";
+                }
+                else {
+                    Course course = courseTable.Search(courseNumber);
+                    if (!course.courseNumber.empty()) {
+                        displayCourse(course);
+                    }
+                    else {
+                        cout << "Course not found.\n";
+                    }
+                }
+            }
+            else {
+                cout << "Please load the data first (Option 1).\n";
+            }
+            break;
+        case 9:
+            cout << "Thank you for using the program. Goodbye!\n";
+            break;
+        default:
+            cout << "Invalid choice. Please try again.\n";
+        }
+    }
+
+    return 0;
 
 
 
 
 
-    
 
-    
+
+
+
+
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
